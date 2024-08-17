@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>運費計算器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333333;
+        }
+        .container {
+            max-width: 414px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 24px;
+            color: #333333;
+        }
+        .input-group {
+            background-color: #ffffff;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .input-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .input-row:last-child {
+            border-bottom: none;
+        }
+        label {
+            flex: 1;
+            font-size: 16px;
+            color: #555555;
+        }
+        input {
+            flex: 2;
+            border: none;
+            font-size: 16px;
+            text-align: right;
+            color: #333333;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input:focus {
+            outline: none;
+        }
+        .weight-type-buttons {
+            display: flex;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            padding: 2px;
+        }
+        .weight-type-button {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+            text-align: center;
+            background: none;
+            border: none;
+            border-radius: 6px;
+            color: #555555;
+            transition: all 0.3s ease;
+        }
+        .weight-type-button.active {
+            background-color: #D2E9FF;
+            color: #333333;
+        }
+        .action-button {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #D2E9FF;
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .action-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .calculate-button {
+            font-size: 20px;
+            padding: 18px;
+            background-color: #D2E9FF;
+            color: #333333;
+        }
+        .reset-button {
+            font-size: 16px;
+            padding: 14px;
+            background-color: #cccccc;
+            color: #333333;
+        }
+        #result {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .weight-unit {
+            margin-left: 8px;
+            color: #777777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>運費計算器</h1>
+        <div class="input-group">
+            <div class="input-row">
+                <label for="length">長 (cm)</label>
+                <input type="number" id="length" min="0" step="0.1" inputmode="decimal">
+            </div>
+            <div class="input-row">
+                <label for="width">寬 (cm)</label>
+                <input type="number" id="width" min="0" step="0.1" inputmode="decimal">
+            </div>
+            <div class="input-row">
+                <label for="height">高 (cm)</label>
+                <input type="number" id="height" min="0" step="0.1" inputmode="decimal">
+            </div>
+            <div class="input-row">
+                <label>重量類型</label>
+                <div class="weight-type-buttons">
+                    <button id="bigWeight" class="weight-type-button active" onclick="setWeightType('big')">大秤</button>
+                    <button id="smallWeight" class="weight-type-button" onclick="setWeightType('small')">小秤</button>
+                </div>
+            </div>
+            <div class="input-row">
+                <label for="weight">商品重量</label>
+                <input type="number" id="weight" min="0" step="0.001" inputmode="decimal">
+                <span id="weightUnit" class="weight-unit">公斤</span>
+            </div>
+            <div class="input-row">
+                <label for="shippingRate">每公斤運費</label>
+                <input type="number" id="shippingRate" min="0" step="0.1" inputmode="decimal">
+            </div>
+        </div>
+        <button class="action-button calculate-button" onclick="calculate()">計算運費</button>
+        <button class="action-button reset-button" onclick="resetAll()">清除所有輸入</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let currentWeightType = 'big';
+
+        function setWeightType(type) {
+            currentWeightType = type;
+            document.getElementById('bigWeight').classList.toggle('active', type === 'big');
+            document.getElementById('smallWeight').classList.toggle('active', type === 'small');
+            document.getElementById('weightUnit').textContent = type === 'big' ? '公斤' : '公克';
+        }
+
+        function resetAll() {
+            document.getElementById('length').value = '';
+            document.getElementById('width').value = '';
+            document.getElementById('height').value = '';
+            document.getElementById('weight').value = '';
+            document.getElementById('shippingRate').value = '';
+            document.getElementById('result').textContent = '';
+            setWeightType('big');  // 重置為大秤
+        }
+
+        function calculate() {
+            const length = parseFloat(document.getElementById('length').value);
+            const width = parseFloat(document.getElementById('width').value);
+            const height = parseFloat(document.getElementById('height').value);
+            let weight = parseFloat(document.getElementById('weight').value);
+            const shippingRate = parseFloat(document.getElementById('shippingRate').value);
+
+            if (currentWeightType === 'small') {
+                weight /= 1000; // 將公克轉換為公斤
+            }
+
+            let result = '';
+
+            if (isNaN(length) || isNaN(width) || isNaN(height)) {
+                const basicShippingFee = weight * shippingRate;
+                result = `基本運費: ${basicShippingFee.toFixed(2)} 元
+
+計算過程:
+基本運費 = 商品重量 * 每公斤運費 = ${weight} * ${shippingRate} = ${basicShippingFee.toFixed(2)} 元`;
+            } else {
+                const volumetricWeight = Math.ceil((length * width * height) / 6000);
+                const volumetricFee = Math.max(0, (volumetricWeight - (weight * 2.5)) * shippingRate);
+                const totalShippingFee = volumetricFee + (weight * shippingRate);
+
+                result = `材積重量: ${volumetricWeight} 公斤
+完整運費: ${totalShippingFee.toFixed(2)} 元
+
+計算過程:
+1. 材積重量 = 長 * 寬 * 高 / 6000 = ${length} * ${width} * ${height} / 6000 = ${volumetricWeight} 公斤 (無條件進位)
+2. 材積費 = (材積重量 - 商品重量 * 2.5) * 每公斤運費 = (${volumetricWeight} - ${weight} * 2.5) * ${shippingRate} = ${volumetricFee.toFixed(2)} 元
+3. 完整運費 = 材積費 + (商品重量 * 每公斤運費) = ${volumetricFee.toFixed(2)} + (${weight} * ${shippingRate}) = ${totalShippingFee.toFixed(2)} 元`;
+            }
+
+            document.getElementById('result').textContent = result;
+        }
+
+        // 初始化重量單位顯示
+        setWeightType('big');
+    </script>
+</body>
+</html>
