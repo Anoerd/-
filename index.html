@@ -173,6 +173,7 @@
             document.getElementById('bigWeight').classList.toggle('active', type === 'big');
             document.getElementById('smallWeight').classList.toggle('active', type === 'small');
             document.getElementById('weightUnit').textContent = type === 'big' ? '公斤' : '公克';
+            localStorage.setItem('weightType', type);
         }
 
         function resetAll() {
@@ -180,9 +181,12 @@
             document.getElementById('width').value = '';
             document.getElementById('height').value = '';
             document.getElementById('weight').value = '';
-            document.getElementById('shippingRate').value = '';
             document.getElementById('result').textContent = '';
-            setWeightType('big');  // 重置為大秤
+            
+            // 保存當前的重量類型和每公斤運費
+            const currentShippingRate = document.getElementById('shippingRate').value;
+            
+            saveToLocalStorage();
         }
 
         function calculate() {
@@ -219,10 +223,35 @@
             }
 
             document.getElementById('result').textContent = result;
+            saveToLocalStorage();
         }
 
-        // 初始化重量單位顯示
-        setWeightType('big');
+        function saveToLocalStorage() {
+            const data = {
+                length: document.getElementById('length').value,
+                width: document.getElementById('width').value,
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value,
+                shippingRate: document.getElementById('shippingRate').value,
+                weightType: currentWeightType
+            };
+            localStorage.setItem('shippingCalculatorData', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const data = JSON.parse(localStorage.getItem('shippingCalculatorData'));
+            if (data) {
+                document.getElementById('length').value = data.length || '';
+                document.getElementById('width').value = data.width || '';
+                document.getElementById('height').value = data.height || '';
+                document.getElementById('weight').value = data.weight || '';
+                document.getElementById('shippingRate').value = data.shippingRate || '';
+                setWeightType(data.weightType || 'big');
+            }
+        }
+
+        // 初始化時加載本地存儲的數據
+        loadFromLocalStorage();
     </script>
 </body>
 </html>
